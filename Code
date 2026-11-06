@@ -1,0 +1,29 @@
+import os 
+import socket 
+import scapy
+
+
+from scapy.all import sniff, IP, TCP, UDP, ICMP, ARP, Ether, send, sr1, srp, srp1, sr, conf
+Target_IP = "gib hier deine ip adresse ein"
+
+def analyze_packet(packet):
+    if packet.haslayer(IP):
+        src_ip = packet[IP].src
+        dst_ip = packet[IP].dst
+        if src_ip==Target_IP or dst_ip==Target_IP:
+            fremde_ip = dst_ip if src_ip == Target_IP else src_ip
+            
+           
+            try:
+                hostname = socket.gethostbyaddr(fremde_ip)[0]
+            except socket.herror:
+                hostname = "Unbekannter Hostname"
+            if packet.haslayer(UDP):
+             print(f"handy udp packet detected: {src_ip} -> {dst_ip}")
+
+            elif packet.haslayer(TCP):
+             print(f"handy tcp packet detected: {src_ip} -> {dst_ip}")
+        
+    
+print("starting VOIP sniffer on port 5060...")
+sniff(filter="udp", prn=analyze_packet)
